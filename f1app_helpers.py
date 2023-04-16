@@ -50,6 +50,16 @@ def get_event_header_str(event_df):
                         f'{event_df["Event"]}')
     return event_header_str
 
+def get_session_dict(event_df):
+    current_sessions = [session[:-5] for session
+                        in event_df.index
+                        if session.endswith("Date")]
+    session_dict = {'Race': 'R', 'Practice 1': 'FP1', 'Practice 2': 'FP2',
+                    'Practice 3': 'FP3', 'Qualifier': 'Q', 'Sprint': 'S'}
+    session_dict_list = [{'label': session, 'value': session_dict[session]}
+                         for session in current_sessions]
+    return session_dict_list
+
 def get_event_table(raceId):
     result_list = (['driverId', 'constructorId', 'positionOrder',
                     'positionText', 'laps', 'grid', 'time', 'statusId'])

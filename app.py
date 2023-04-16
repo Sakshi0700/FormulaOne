@@ -22,6 +22,7 @@ init_event = f1.get_event(init_raceId)
 init_event_hdr = f1.get_event_header_str(init_event)
 init_event_table = f1.get_event_table(init_raceId)
 init_condensed_table = f1.condense_event_table(init_event_table)
+init_radio_button_options = f1.get_session_dict(init_event)
 
 
 header = dbc.Col(html.H3("Formula 1 Telemetry Visualization",
@@ -44,18 +45,53 @@ event_dropdown = dcc.Dropdown(
 
 placeholder = dbc.Col([dbc.Placeholder(color="info", className="me-1 mt-1 w-100")]
 )
-event_header = dbc.Col(html.H4(children=init_event_hdr, id='event-header',
+
+button_group = html.Div(
+    [
+        dbc.RadioItems(
+            id="load-radios",
+            className="btn-group",
+            inputClassName="btn-check",
+            labelClassName="btn btn-outline-primary",
+            labelCheckedClassName="active",
+            options=init_radio_button_options,
+            value='R'
+        ),
+        dbc.Button(id="load-button", children='Load Race', value='R', color="primary", className="btn m-3"),
+    ],
+    className="radio-group"
+)
+
+# load_button = dbc.Col(dbc.Button(id="load-button", children='Load Race', value='R',
+#                    color="primary", className="me-1")),
+
+event_header = dbc.Col(html.H4
+                           (children=init_event_hdr, id='event-header',
                                className="bg-info text-white p-4 mb-2"),
-                       md=10)
-table = dbc.Col(html.H6(children=dbc.Table.from_dataframe(
+                            md=10)
+event_table = dbc.Col(html.H6(children=dbc.Table.from_dataframe(
                         init_condensed_table, striped=True,
                         bordered=True, hover=True
                         ), id='event-table'), className="m-6 dbc", md=10
 )
 
-#
-# event_table_row = dbc.Row(id='table-row')
 
+
+# button_group = html.Div(
+#     [
+#         dbc.RadioItems(
+#             id="load-radios",
+#             className="btn-group",
+#             inputClassName="btn-check",
+#             labelClassName="btn btn-outline-primary",
+#             labelCheckedClassName="active",
+#             options=init_radio_button_options,
+#             value='R',
+#         ),
+#         dbc.Button("Load Session", color="primary", className="me-1"),
+#     ],
+#     className="radio-group",
+# )
 
 @app.callback(
     Output('event-dropdown', 'options'),
@@ -77,7 +113,7 @@ def update_event_hdr(raceId):
     event_table_expand = f1.get_event_table(raceId)
     event_table_condensed = f1.condense_event_table(event_table_expand)
     event_table = dbc.Table.from_dataframe(
-                        init_condensed_table, striped=True,
+                        event_table_condensed, striped=True,
                         bordered=True, hover=True
                         )
     return event_header, event_table
@@ -100,8 +136,7 @@ row1 = html.Div(
 
 
 
-
-app.layout = dbc.Container([header, row1, event_header, table], fluid=True, className="m-4 dbc")
+app.layout = dbc.Container([header, row1, event_header, button_group, event_table], fluid=True, className="m-4 dbc")
 # @app.callback(
 #     # Output("pie-chart", "figure"),
 #     Output("year-dropdown", "value"),
