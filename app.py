@@ -1,6 +1,6 @@
 #
 # Heavily inspired by https://www.f1-tempo.com/
-#
+# Also this https://github.com/jessbuildsthings/f1-viz/
 
 
 import datetime as dt
@@ -15,7 +15,11 @@ from dash_bootstrap_templates import ThemeSwitchAIO
 dbc_css = (
     "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.4/dbc.min.css"
 )
+
+
 app = Dash(__name__, external_stylesheets=[dbc.themes.PULSE, dbc_css])
+
+
 this_year = dt.date.today().year
 init_raceId = f1.get_init_raceId(this_year)
 init_event = f1.get_event(init_raceId)
