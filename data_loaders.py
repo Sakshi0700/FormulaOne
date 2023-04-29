@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import sqlite3
 import datetime as dt
+import pickle
 
 
 DB = "data/f1db_lite.db"
@@ -19,7 +20,8 @@ class options_loader():
         self.event_hdr = self.get_event_header_str(self.event)
         self.event_table = self.get_event_table(self.raceId)
         self.condensed_table = self.condense_event_table(self.event_table)
-        self.radio_buttons = self.get_session_dict(self.event)
+        self.race_labels = self.get_session_dict(self.event)
+        self.drivers = self.get_drivers(self.condensed_table)
 
 
     def set_tm_years(self):
@@ -59,7 +61,17 @@ class options_loader():
 
     def get_round(self, raceId):
         query = self.query('round', 'races', f'raceId={raceId}')
-        round = self.exec_query(query, raceId).iat[0,0]
+        sround = self.exec_query(query, raceId).iat[0,0]
+        return sround
+
+    def get_drivers(self, condensed_table):
+        drivers = condensed_table['Driver']
+        code = condensed_table['Code']
+        driver_dict_list = [{'value': dcode, 'label': driver}
+                            for dcode, driver in zip(code, drivers)]
+        return driver_dict_list
+
+
 
     def get_event(self, raceId):
         query = self.query('*', 'races', 'raceID=?')
@@ -145,6 +157,32 @@ class options_loader():
         return condensed_df
 
 
+class session_loader():
 
+    def __init__(self, year, sround, race):
+        self.year = year
+        self.sround = sround
+        self.race = race
+        self.session = fastf1.get_session(year, sround, race)
+
+    def load_session(self):
+        self.session.load()
+
+# drivers = pd.unique(session.laps['Driver'])
+    def get_drivers_table(drivers):
+        return dbc.Col(html.H6(children=dbc.Table.from_dataframe(
+            drivers, striped=True,
+            bordered=True, hover=True
+        ), id='drivers'), className="m-6 dbc", md=10)
+
+    def get_filename(self):
+        filename = (f'data/session/session_{str(self.year)} ' +
+                    f'{str(self.sround)} {str(self.race)}.pickle')
+        return filename
+
+    def store_file(self):
+        filename = self.get_filename()
+        with open(filename, 'rb') as handle:
+            session_data = pickle.load(handle)
 
 
